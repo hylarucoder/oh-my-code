@@ -138,6 +138,18 @@
         "contents": "In order to use git features, you can open a folder containing a git repository or clone from a URL.\n[Open Folder](command:vscode.openFolder)\n[Clone Repository](command:git.clone)\nTo learn more about how to use git and source control in VS Code [read our docs](https://aka.ms/vscode-scm).",
         "when": "config.git.enabled && git.state == initialized && workbenchState == empty"
       }
+    ],
+    "themes": [
+      {
+        "label": "Darcula Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/darcula-dark-color-theme.json"
+      },
+      {
+        "label": "Darcula Light",
+        "uiTheme": "vs-dark",
+        "path": "./themes/darcula-light-color-theme.json"
+      }
     ]
   },
   "devDependencies": {
