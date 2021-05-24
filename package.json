@@ -19,6 +19,18 @@
         "command": "extension.reformatSelection4cn",
         "title": "OMV: Pangu Reformat"
       }
+    ],
+    "themes": [
+      {
+        "label": "Darcula Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/darcula-dark-color-theme.json"
+      },
+      {
+        "label": "Darcula Light",
+        "uiTheme": "vs-dark",
+        "path": "./themes/darcula-light-color-theme.json"
+      }
     ]
   },
   "scripts": {
