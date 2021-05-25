@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "vscode:prepublish": "yarn compile",
-    "compile": "tsc -p ./ && cp -r ./themes ./snippets ./syntaxes dist",
+    "compile": "tsc -p ./ && cp -r ./themes ./snippets ./syntaxes out",
     "lint": "eslint . --ext .ts,.tsx",
     "watch": "tsc -watch -p ./"
   },
@@ -20,7 +20,7 @@
     "onCommand:omv.panguFormat",
     "onCommand:omv.sayHello"
   ],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.js",
   "contributes": {
     "configurationDefaults": {
       "[markdown]": {
@@ -107,8 +107,7 @@
         "path": "./syntaxes/injection.json",
         "scopeName": "todo-comment.injection",
         "injectTo": [
-          "source.py",
-          "source.js"
+          "source"
         ]
       }
     ],
