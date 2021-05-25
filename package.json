@@ -9,6 +9,12 @@
   "categories": [
     "Other"
   ],
+  "scripts": {
+    "vscode:prepublish": "yarn compile",
+    "compile": "tsc -p ./ && cp -r ./themes ./snippets ./syntaxes dist",
+    "lint": "eslint . --ext .ts,.tsx",
+    "watch": "tsc -watch -p ./"
+  },
   "activationEvents": [
     "onCommand:omv.quickInput",
     "onCommand:omv.panguFormat",
@@ -96,29 +102,14 @@
         "path": "./snippets/javascript.json"
       }
     ],
-    "languages": [
-      {
-        "id": "python",
-        "extensions": [
-          ".py"
-        ],
-        "aliases": [
-          "Python",
-          "py"
-        ],
-        "filenames": [],
-        "firstLine": "^#!/.*\\bpython[0-9.-]*\\b",
-        "configuration": "./language-configuration.json"
-      }
-    ],
     "grammars": [
       {
-        "language": "markdown",
-        "scopeName": "text.html.markdown",
-        "path": "./syntaxes/markdown.tmLanguage.json",
-        "embeddedLanguages": {
-          "meta.embedded.block.frontmatter": "yaml"
-        }
+        "path": "./syntaxes/injection.json",
+        "scopeName": "todo-comment.injection",
+        "injectTo": [
+          "source.py",
+          "source.js"
+        ]
       }
     ],
     "views": {
@@ -133,14 +124,14 @@
       ]
     },
     "viewsContainers": {
-			"activitybar": [
-				{
-					"id": "codestream-activitybar",
-					"title": "CodeStream",
-					"icon": "assets/images/codestream.svg"
-				}
-			]
-		},
+      "activitybar": [
+        {
+          "id": "codestream-activitybar",
+          "title": "CodeStream",
+          "icon": "assets/images/codestream.svg"
+        }
+      ]
+    },
     "viewsWelcome": [
       {
         "view": "scm",
@@ -148,12 +139,6 @@
         "when": "config.git.enabled && git.state == initialized && workbenchState == empty"
       }
     ]
-  },
-  "scripts": {
-    "vscode:prepublish": "yarn compile",
-    "compile": "tsc -p ./ && cp -r ./themes dist && cp -r ./snippets dist",
-    "lint": "eslint . --ext .ts,.tsx",
-    "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
