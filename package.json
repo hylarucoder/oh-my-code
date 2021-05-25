@@ -10,7 +10,9 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onCommand:omv.quickInput",
+    "onCommand:omv.panguFormat",
+    "onCommand:omv.sayHello"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -37,7 +39,7 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "extension.sayHello",
+          "command": "omv.sayHello",
           "when": "editorHasSelection"
         }
       ],
@@ -61,8 +63,18 @@
     },
     "commands": [
       {
-        "command": "extension.reformatSelection4cn",
+        "command": "omv.sayHello",
+        "title": "OMV: sayHello",
+        "category": "OMV"
+      },
+      {
+        "command": "omv.panguFormat",
         "title": "OMV: Pangu Reformat",
+        "category": "OMV"
+      },
+      {
+        "command": "omv.quickInput",
+        "title": "OMV: Quick Input",
         "category": "OMV"
       }
     ],
@@ -120,6 +132,15 @@
         }
       ]
     },
+    "viewsContainers": {
+			"activitybar": [
+				{
+					"id": "codestream-activitybar",
+					"title": "CodeStream",
+					"icon": "assets/images/codestream.svg"
+				}
+			]
+		},
     "viewsWelcome": [
       {
         "view": "scm",
