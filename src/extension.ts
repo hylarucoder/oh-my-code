@@ -1,203 +1,86 @@
-"use strict";
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from "vscode";
+import {ExtensionContext, commands, window, StatusBarAlignment, workspace, StatusBarItem } from "vscode";
+import { PanguFormatter } from "./formatter/PanguFormatter";
+import { basename } from 'path';
+
+function getEditorInfo(): { text?: string; tooltip?: string; color?: string; } | null {
+  const editor = window.activeTextEditor;
+  // If no workspace is opened or just a single folder, we return without any status label
+  // because our extension only works when more than one folder is opened in a workspace.
+  if (!editor || !workspace.workspaceFolders || workspace.workspaceFolders.length < 2) {
+      return null;
+  }
+
+  let text: string | undefined;
+  let tooltip: string | undefined;
+  let color: string | undefined;
+
+  // If we have a file:// resource we resolve the WorkspaceFolder this file is from and update
+  // the status accordingly.
+  const resource = editor.document.uri;
+  if (resource.scheme === 'file') {
+      const folder = workspace.getWorkspaceFolder(resource);
+      if (!folder) {
+          text = `$(alert) <outside workspace> → ${basename(resource.fsPath)}`;
+      } else {
+          text = `$(file-submodule) ${basename(folder.uri.fsPath)} (${folder.index + 1} of ${workspace.workspaceFolders.length}) → $(file-code) ${basename(resource.fsPath)}`;
+          tooltip = resource.fsPath;
+
+          const multiRootConfigForResource = workspace.getConfiguration('multiRootSample', resource);
+          color = multiRootConfigForResource.get('statusColor');
+      }
+  }
+
+  return { text, tooltip, color };
+}
+
+
+function updateStatus(status: StatusBarItem): void {
+  const info = getEditorInfo();
+  status.text = info ? info.text || '' : '';
+  status.tooltip = info ? info.tooltip : undefined;
+  status.color = info ? info.color : undefined;
+
+  if (info) {
+      status.show();
+  } else {
+      status.hide();
+  }
+}
 
 // this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "writing4cn" is now active!');
+export function activate(context: ExtensionContext) {
+  console.log('Congratulations, your extension "oh my vscode" is now active!');
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with  registerCommand
-  // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
+  let disposable = commands.registerCommand(
     "extension.reformatSelection4cn",
     () => {
-      // The code you place here will be executed every time your command is executed
-
-      new DocumentFormatter().updateDocument();
-      // Display a message box to the user
-      vscode.window.showInformationMessage("格式化完毕");
+      new PanguFormatter().updateDocument();
+      window.showInformationMessage("格式化完毕");
     }
   );
 
   context.subscriptions.push(disposable);
+
+  // Create a status bar item
+  const status = window.createStatusBarItem(StatusBarAlignment.Left, 1000000);
+  context.subscriptions.push(status);
+
+  // Update status bar item based on events for multi root folder changes
+  context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(e => updateStatus(status)));
+
+  // Update status bar item based on events for configuration
+  context.subscriptions.push(workspace.onDidChangeConfiguration(e => updateStatus(status)));
+
+  // Update status bar item based on events around the active editor
+  context.subscriptions.push(window.onDidChangeActiveTextEditor(e => updateStatus(status)));
+  context.subscriptions.push(window.onDidChangeTextEditorViewColumn(e => updateStatus(status)));
+  context.subscriptions.push(workspace.onDidOpenTextDocument(e => updateStatus(status)));
+  context.subscriptions.push(workspace.onDidCloseTextDocument(e => updateStatus(status)));
+
+  updateStatus(status);
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
-class DocumentFormatter {
-  public updateDocument() {
-    let editor = vscode.window.activeTextEditor;
-    if (!editor) {
-      return;
-    }
-    let doc = editor.document;
-    // Only update status if an Markdown file
-    if (doc.languageId === "markdown") {
-      // 按照每行进行搞定
-      editor.edit((editorBuilder: vscode.TextEditorEdit) => {
-        let content = doc.getText(this.current_document_range(doc));
-        // 全局替换
-        content = this.condenseContent(content);
-        content = this.replaceFullNums(content);
-        content = this.replaceFullChars(content);
-        // 标记是否位于代码区域内
-        let isInCodeArea = 0;
-        // 每行操作
-        content = content
-          .split("\n")
-          .map((line: string) => {
-            if (line.trim().startsWith("```")) {
-              isInCodeArea = isInCodeArea == 0 ? 1 : 0;
-            }
 
-            line = this.replacePunctuations(line);
-            line = line.replace(
-              /([\u4e00-\u9fa5\u3040-\u30FF])([a-zA-Z0-9@&=\[\$\%\^\-\+(\/\\])/g,
-              "$1 $2"
-            );
-            line = line.replace(
-              /([a-zA-Z0-9!&;=\]\,\.\:\?\$\%\^\-\+\)\/\\])([\u4e00-\u9fa5\u3040-\u30FF])/g,
-              "$1 $2"
-            );
-
-            // 不在代码区域内才执行此项替换
-            if (
-              !/`+[^`]*[『\[]([^』\]]+)[』\]][『\[]([^』\]]+)[』\]][^`]*`+/g.test(
-                line
-              ) &&
-              !isInCodeArea
-            ) {
-              line = line.replace(
-                /[『\[]([^』\]]+)[』\]][『\[]([^』\]]+)[』\]]/g,
-                "[$1]($2)"
-              );
-            }
-
-            line = line.replace(
-              /[『\[]([^』\]]+)[』\]][（(]([^』)]+)[）)]/g,
-              "[$1]($2)"
-            );
-            return line;
-          })
-          .join("\n");
-
-        editorBuilder.replace(this.current_document_range(doc), content);
-        // editorBuilder.insert(doc.positionAt(0), 'hello World');
-      });
-    } else {
-    }
-  }
-  protected current_document_range(doc: vscode.TextDocument) {
-    let start = new vscode.Position(0, 0);
-    let end = new vscode.Position(
-      doc.lineCount - 1,
-      doc.lineAt(doc.lineCount - 1).text.length
-    );
-    let range = new vscode.Range(start, end);
-    return range;
-  }
-  protected condenseContent(content: string) {
-    content = content.replace(/^(.*)(\r?\n\1)+$/gm, "$1");
-    return content;
-  }
-  protected replacePunctuations(content: string) {
-    content = content.replace(
-      /([\u4e00-\u9fa5\u3040-\u30FF])\.($|\s*)/g,
-      "$1。"
-    );
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF]),\s*/g, "$1，");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF]);\s*/g, "$1；");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF])!\s*/g, "$1！");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF]):\s*/g, "$1：");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF])\?\s*/g, "$1？");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF])\\\s*/g, "$1、");
-    content = content.replace(/\(([\u4e00-\u9fa5\u3040-\u30FF])/g, "（$1");
-    content = content.replace(/\[([\u4e00-\u9fa5\u3040-\u30FF])/g, "『$1");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF。！])\]/g, "$1』");
-    content = content.replace(/<([\u4e00-\u9fa5\u3040-\u30FF])/g, "《$1");
-    content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF。！])>/g, "$1》");
-    content = content.replace(/。{3,}/g, "\u2026\u2026");
-    content = content.replace(/([！？])$1{3,}/g, "$1$1$1");
-    content = content.replace(/([。，；：、“”『』〖〗《》])\1{1,}/g, "$1");
-    return content;
-  }
-
-  protected replaceFullNums(content: string) {
-    " 全角数字。";
-    content = content.replace("０", "0");
-    content = content.replace("１", "1");
-    content = content.replace("２", "2");
-    content = content.replace("３", "3");
-    content = content.replace("４", "4");
-    content = content.replace("５", "5");
-    content = content.replace("６", "6");
-    content = content.replace("７", "7");
-    content = content.replace("８", "8");
-    content = content.replace("９", "9");
-    return content;
-  }
-  protected replaceFullChars(content: string) {
-    " 全角英文和标点。";
-    content = content.replace("Ａ", "A");
-    content = content.replace("Ｂ", "B");
-    content = content.replace("Ｃ", "C");
-    content = content.replace("Ｄ", "D");
-    content = content.replace("Ｅ", "E");
-    content = content.replace("Ｆ", "F");
-    content = content.replace("Ｇ", "G");
-    content = content.replace("Ｈ", "H");
-    content = content.replace("Ｉ", "I");
-    content = content.replace("Ｊ", "J");
-    content = content.replace("Ｋ", "K");
-    content = content.replace("Ｌ", "L");
-    content = content.replace("Ｍ", "M");
-    content = content.replace("Ｎ", "N");
-    content = content.replace("Ｏ", "O");
-    content = content.replace("Ｐ", "P");
-    content = content.replace("Ｑ", "Q");
-    content = content.replace("Ｒ", "R");
-    content = content.replace("Ｓ", "S");
-    content = content.replace("Ｔ", "T");
-    content = content.replace("Ｕ", "U");
-    content = content.replace("Ｖ", "V");
-    content = content.replace("Ｗ", "W");
-    content = content.replace("Ｘ", "X");
-    content = content.replace("Ｙ", "Y");
-    content = content.replace("Ｚ", "Z");
-    content = content.replace("ａ", "a");
-    content = content.replace("ｂ", "b");
-    content = content.replace("ｃ", "c");
-    content = content.replace("ｄ", "d");
-    content = content.replace("ｅ", "e");
-    content = content.replace("ｆ", "f");
-    content = content.replace("ｇ", "g");
-    content = content.replace("ｈ", "h");
-    content = content.replace("ｉ", "i");
-    content = content.replace("ｊ", "j");
-    content = content.replace("ｋ", "k");
-    content = content.replace("ｌ", "l");
-    content = content.replace("ｍ", "m");
-    content = content.replace("ｎ", "n");
-    content = content.replace("ｏ", "o");
-    content = content.replace("ｐ", "p");
-    content = content.replace("ｑ", "q");
-    content = content.replace("ｒ", "r");
-    content = content.replace("ｓ", "s");
-    content = content.replace("ｔ", "t");
-    content = content.replace("ｕ", "u");
-    content = content.replace("ｖ", "v");
-    content = content.replace("ｗ", "w");
-    content = content.replace("ｘ", "x");
-    content = content.replace("ｙ", "y");
-    content = content.replace("ｚ", "z");
-
-    content = content.replace("＠", "@");
-    return content;
-  }
-}
