@@ -11,9 +11,9 @@ function setupContext(context: ExtensionContext) {
 
 // this method is called when your extension is activated
 export function activate(context: ExtensionContext) {
-  console.log('"oh my vscode" is activating!');
+  console.log('"oh my code" is activating!');
   setupContext(context);
-  console.log('"oh my vscode" is now active!');
+  console.log('"oh my code" is now active!');
 }
 
 // this method is called when your extension is deactivated

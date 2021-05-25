@@ -4,7 +4,7 @@ import { PanguFormatter } from "./formatter/PanguFormatter";
 export function setupPanguFormatter(context: ExtensionContext) {
   const { subscriptions } = context;
   let commandMarkdownFormatter = commands.registerCommand(
-    "omv.reformatSelection4cn",
+    "omc.panguFormat",
     () => {
       new PanguFormatter().updateDocument();
       window.showInformationMessage("格式化完毕");
