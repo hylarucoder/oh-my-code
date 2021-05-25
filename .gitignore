@@ -3,3 +3,4 @@
 .vscodeignore
 node_modules
 dist/
+out/

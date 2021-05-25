@@ -91,6 +91,12 @@
   },
   "tokenColors": [
     {
+      "scope": ["keyword.todo"],
+      "settings": {
+        "foreground": "#c51a1a"
+      }
+    },
+    {
       "scope": ["text"],
       "settings": {
         "foreground": "#BABABA"
