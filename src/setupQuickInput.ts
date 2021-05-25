@@ -25,7 +25,7 @@ export async function showQuickPick() {
 
 export function setupQuickInput(context: ExtensionContext) {
   const { subscriptions } = context;
-  commands.registerCommand("omv.quickInput", async () => {
+  commands.registerCommand("omc.quickInput", async () => {
     const options: {
       [key: string]: (context: ExtensionContext) => Promise<void>;
     } = {

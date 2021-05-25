@@ -1,5 +1,5 @@
 {
-  "name": "oh-my-vscode",
+  "name": "oh-my-code",
   "displayName": "海拉鲁编程客的 vscode 配置",
   "description": "好的配置拷贝在身边,一用好多年",
   "version": "0.0.1",
@@ -16,9 +16,9 @@
     "watch": "tsc -watch -p ./"
   },
   "activationEvents": [
-    "onCommand:omv.quickInput",
-    "onCommand:omv.panguFormat",
-    "onCommand:omv.sayHello"
+    "onCommand:omc.quickInput",
+    "onCommand:omc.panguFormat",
+    "onCommand:omc.sayHello"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -29,7 +29,7 @@
       }
     },
     "configuration": {
-      "title": "OhMyVSCode",
+      "title": "OhMyCode",
       "type": "object",
       "properties": {
         "multiRootSample.statusColor": {
@@ -45,7 +45,7 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "omv.sayHello",
+          "command": "omc.sayHello",
           "when": "editorHasSelection"
         }
       ],
@@ -69,31 +69,26 @@
     },
     "commands": [
       {
-        "command": "omv.sayHello",
-        "title": "OMV: sayHello",
-        "category": "OMV"
+        "command": "omc.sayHello",
+        "title": "OMC: sayHello",
+        "category": "OMC"
       },
       {
-        "command": "omv.panguFormat",
-        "title": "OMV: Pangu Reformat",
-        "category": "OMV"
+        "command": "omc.panguFormat",
+        "title": "OMC: Pangu Reformat",
+        "category": "OMC"
       },
       {
-        "command": "omv.quickInput",
-        "title": "OMV: Quick Input",
-        "category": "OMV"
+        "command": "omc.quickInput",
+        "title": "OMC: Quick Input",
+        "category": "OMC"
       }
     ],
     "themes": [
       {
-        "label": "Darcula Dark",
+        "label": "OMC Dark",
         "uiTheme": "vs-dark",
-        "path": "./themes/darcula-dark-color-theme.json"
-      },
-      {
-        "label": "Darcula Light",
-        "uiTheme": "vs-dark",
-        "path": "./themes/darcula-light-color-theme.json"
+        "path": "./themes/darcula-color-theme.json"
       }
     ],
     "snippets": [
@@ -104,7 +99,7 @@
     ],
     "grammars": [
       {
-        "path": "./syntaxes/injection.json",
+        "path": "./syntaxes/todo-comment.json",
         "scopeName": "todo-comment.injection",
         "injectTo": [
           "source"
